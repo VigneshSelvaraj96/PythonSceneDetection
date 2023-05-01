@@ -29,6 +29,7 @@ class Window(QWidget):
 
         self.section_map = {}
         self.reverse_map = {}
+        self.object_map = {}    # timestamp -> List of QTreeWidgetItem
 
         self.init_ui()
 
@@ -85,8 +86,17 @@ class Window(QWidget):
         # position is time value in milliseconds
         self.slider.setValue(position)
         print(self.media_player.duration(), "  ", position)
-        item = self.tree.invisibleRootItem()
+        self.paint_item(position)
         # self.update_tree_item(position, item)
+
+    def paint_item(self, position):
+        for timestamp in self.object_map.keys():
+            if timestamp <= position:
+                for item in self.object_map.get(timestamp):
+                    item.setForeground(0, QtGui.QBrush(QtGui.QColor("#00FF00")))
+            else:
+                for item in self.object_map.get(timestamp):
+                    item.setForeground(0, QtGui.QBrush(QtGui.QColor("#000000")))
 
     def slider_duration_changed(self, duration):
         # duration itself is the total time of the video content in milliseconds
@@ -94,6 +104,12 @@ class Window(QWidget):
 
     def set_position(self, position):
         self.media_player.setPosition(position)
+
+    def insert_into_object_map(self, timestamp, item):
+        if timestamp not in self.object_map.keys():
+            self.object_map[timestamp] = [item]
+        else:
+            self.object_map[timestamp].append(item)
 
     def populate_tree_widget(self):
 
@@ -109,6 +125,7 @@ class Window(QWidget):
             self.reverse_map[time_milli] = key1
 
             parent_it = QTreeWidgetItem([key1])
+            self.insert_into_object_map(time_milli, parent_it)
             idx1 = 1
             self.tree.addTopLevelItem(parent_it)
             for shot in data[scene]:
@@ -119,6 +136,7 @@ class Window(QWidget):
                 self.reverse_map[time_milli] = key2
 
                 it = QTreeWidgetItem([key2])
+                self.insert_into_object_map(time_milli, it)
 
                 idx1 += 1
                 idx2 = 1
@@ -130,13 +148,14 @@ class Window(QWidget):
                     self.reverse_map[time_milli] = key3
 
                     sit = QTreeWidgetItem([key3])
+                    self.insert_into_object_map(time_milli, sit)
                     it.addChild(sit)
                     idx2 += 1
 
             idx += 1
 
         # print(len(set(self.section_map.values())))
-        # print(len(self.reverse_map))
+        print(self.object_map)
         self.tree.expandAll()
 
     @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem, int)
