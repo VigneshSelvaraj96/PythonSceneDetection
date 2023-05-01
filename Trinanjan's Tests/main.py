@@ -2,7 +2,7 @@ import subprocess
 
 video_file = "./data/The_Long_Dark_rgb/InputVideo.rgb"
 audio_file = "./data/The_Long_Dark_rgb/InputAudio.wav"
-output_file = "./output.mp4"
+output_file = "./output.mov"
 
 # Set the video and audio input options
 video_input_options = "-f rawvideo -pix_fmt rgb24 -s:v 480x270 -r 30"
