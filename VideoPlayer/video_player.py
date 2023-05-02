@@ -1,4 +1,5 @@
 import json
+import os.path
 from datetime import datetime, timedelta
 
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, \
@@ -12,9 +13,9 @@ import sys
 
 # data = {"00:00:00.000": {"00:00:00.000": [0.0, 14.256394557823128, 15.401972789115646, 17.77392290249433, 20.260997732426304, 21.783242630385487, 24.66780045351474, 31.200226757369613], "00:00:36.000": [36.0], "00:00:37.700": [37.7, 91.47480725623583, 98.6436507936508], "00:01:48.133": [108.133], "00:01:50.067": [110.067]}, "00:01:58.200": {"00:01:58.200": [118.2, 131.9855328798186, 134.27607709750566, 136.5936961451247], "00:02:24.867": [144.867], "00:02:41.467": [161.467, 162.75112698412698, 163.82938095238097, 171.15396145124717, 183.339947845805], "00:03:06.633": [186.633]}, "00:03:24.667": {"00:03:24.667": [204.667, 206.7152993197279], "00:03:30.067": [210.067]}, "00:03:48.533": {"00:03:48.533": [228.533], "00:03:54.900": [234.9]}, "00:04:13.033": {"00:04:13.033": [253.033, 254.4427052154195]}, "00:04:15.633": {"00:04:15.633": [255.633], "00:04:21.167": [261.167]}, "00:04:29.333": {"00:04:29.333": [269.333], "00:04:35.633": [275.633]}}
 
-json_file = open('../dict_of_start_times.json')
+json_file = open('./Data/dict_of_start_times.json')
 data = json.load(json_file)
-
+dirname = os.path.dirname(__file__)
 
 def convert_time_to_milli(time_component):
     return ((float(time_component[0]) * 60 + float(time_component[1])) * 60 + float(time_component[2])) * 1000
@@ -32,6 +33,7 @@ class Window(QWidget):
         self.object_map = {}    # timestamp -> List of QTreeWidgetItem
 
         self.init_ui()
+        self.open_file()
 
         # p = self.palette()
         # p.setColor(QPalette.Window, Qt.black)
@@ -40,8 +42,8 @@ class Window(QWidget):
         self.show()
 
     def open_file(self):
-        filename, _ = QFileDialog.getOpenFileName(self, "Open Video")
-
+        # filename, _ = QFileDialog.getOpenFileName(self, "Open Video")
+        filename = os.path.join(dirname, './Data/InputVideo.mp4')
         if filename != '':
             self.media_player.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
             self.play_pause_btn.setEnabled(True)
@@ -93,7 +95,7 @@ class Window(QWidget):
         for timestamp in self.object_map.keys():
             if timestamp <= position:
                 for item in self.object_map.get(timestamp):
-                    item.setForeground(0, QtGui.QBrush(QtGui.QColor("#00FF00")))
+                    item.setForeground(0, QtGui.QBrush(QtGui.QColor("#00d1b2")))
             else:
                 for item in self.object_map.get(timestamp):
                     item.setForeground(0, QtGui.QBrush(QtGui.QColor("#000000")))
@@ -172,8 +174,8 @@ class Window(QWidget):
         video_widget = QVideoWidget()
 
         # Create open Button
-        open_btn = QPushButton('Open Video')
-        open_btn.clicked.connect(self.open_file)
+        # open_btn = QPushButton('Open Video')
+        # open_btn.clicked.connect(self.open_file)
 
         # Play/Pause Button
         self.play_pause_btn = QPushButton()
@@ -205,7 +207,7 @@ class Window(QWidget):
         # Hbox layout
         hboxlayout = QHBoxLayout()
         hboxlayout.setContentsMargins(0, 0, 0, 0)
-        hboxlayout.addWidget(open_btn)
+        # hboxlayout.addWidget(open_btn)
         hboxlayout.addWidget(self.slider)
         hboxlayout.addWidget(self.play_pause_btn)
         hboxlayout.addWidget(self.stop_btn)

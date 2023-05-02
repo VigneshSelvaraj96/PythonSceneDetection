@@ -10,8 +10,9 @@ import os
 dirname = os.path.dirname(__file__)
 
 # Define the path to the audio file
-audio_path = os.path.join(dirname, './Data/Ready_Player_One_rgb/InputAudio.wav')
-video_path = os.path.join(dirname, './Data/Ready_Player_One_rgb/InputVideo.mp4')
+audio_path = os.path.join(dirname, './Data/InputAudio.wav')
+video_path = os.path.join(dirname, './Data/InputVideo.mp4')
+
 
 # Define a dict to hold all our data values. I am using start times here as the index
 
@@ -43,6 +44,7 @@ def main():
         # for each scene that was found.
         return scene_manager.get_scene_list()
 
+    print('Detecting Scenes...')
     scenes = find_scenes(video_path)
     detector = scenedetect.detectors.ContentDetector(threshold=shot_threshold, min_scene_len=min_shot_length)
 
@@ -51,12 +53,14 @@ def main():
         scene_end = scene[1].get_timecode()
         # Now we use scene detect again on the original video, but this time we use the scene list to use the start and stop times to create shots
         # create ContentDetector object with a threshold
+        print('Detecting Shot...')
         shots = scenedetect.detect(video_path, detector=detector, start_time=scene_start,
                                    end_time=scene[1].get_timecode())
         # create a new list with shots that have different start and stop timecode
         filtered_shots = [shot for shot in shots if shot[0].get_timecode() != shot[1].get_timecode()]
         dict_of_start_times[scene_start] = {}
         for shot in filtered_shots:
+            print('Detecting Subshot...')
             shot_start = shot[0].get_timecode()
             shot_end = shot[1].get_timecode()
             start_delta = datetime.datetime.strptime(shot_start, "%H:%M:%S.%f") - datetime.datetime.strptime(
@@ -101,7 +105,8 @@ def main():
                 dict_of_start_times[scene_start][shot_start] = {}
                 dict_of_start_times[scene_start][shot_start] = list_of_subshots
 
-    with open('dict_of_start_times.json', 'w') as fp:
+    file_name = os.path.join(dirname, './Data/dict_of_start_times.json')
+    with open(file_name, 'w') as fp:
         json.dump(dict_of_start_times, fp, indent=4)
 
 
