@@ -91,7 +91,7 @@ class Window(QWidget):
     def slider_position_changed(self, position):
         # position is time value in milliseconds
         self.slider.setValue(position)
-        print(self.media_player.duration(), "  ", position)
+        # print(self.media_player.duration(), "  ", position)
         self.paint_item(position)
         # self.update_tree_item(position, item)
 
