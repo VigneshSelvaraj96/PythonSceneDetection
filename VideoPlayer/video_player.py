@@ -11,11 +11,16 @@ from PyQt5.QtGui import QPalette
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 
+import os
+
+dirname = os.path.dirname(__file__)
+
 # data = {"00:00:00.000": {"00:00:00.000": [0.0, 14.256394557823128, 15.401972789115646, 17.77392290249433, 20.260997732426304, 21.783242630385487, 24.66780045351474, 31.200226757369613], "00:00:36.000": [36.0], "00:00:37.700": [37.7, 91.47480725623583, 98.6436507936508], "00:01:48.133": [108.133], "00:01:50.067": [110.067]}, "00:01:58.200": {"00:01:58.200": [118.2, 131.9855328798186, 134.27607709750566, 136.5936961451247], "00:02:24.867": [144.867], "00:02:41.467": [161.467, 162.75112698412698, 163.82938095238097, 171.15396145124717, 183.339947845805], "00:03:06.633": [186.633]}, "00:03:24.667": {"00:03:24.667": [204.667, 206.7152993197279], "00:03:30.067": [210.067]}, "00:03:48.533": {"00:03:48.533": [228.533], "00:03:54.900": [234.9]}, "00:04:13.033": {"00:04:13.033": [253.033, 254.4427052154195]}, "00:04:15.633": {"00:04:15.633": [255.633], "00:04:21.167": [261.167]}, "00:04:29.333": {"00:04:29.333": [269.333], "00:04:35.633": [275.633]}}
 
-json_file = open('./Data/dict_of_start_times.json')
+
+json_file = open(os.path.join(dirname, './Data/dict_of_start_times.json'))
 data = json.load(json_file)
-dirname = os.path.dirname(__file__)
+
 
 def convert_time_to_milli(time_component):
     return ((float(time_component[0]) * 60 + float(time_component[1])) * 60 + float(time_component[2])) * 1000
@@ -60,21 +65,20 @@ class Window(QWidget):
             self.play_pause_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
 
     def stop_video(self):
-        if self.media_player.state() == QMediaPlayer.PlayingState:
-            print('Position == ', self.media_player.position())
-            position = self.media_player.position()
-            break_point = 'Scene1'
-            for key in self.reverse_map.keys():
-                print(key)
-                if position <= key:
-                    break
-                else:
-                    break_point = self.reverse_map[key]
+        print('Position == ', self.media_player.position())
+        position = self.media_player.position()
+        break_point = 'Scene1'
+        for key in self.reverse_map.keys():
+            print(key)
+            if position <= key:
+                break
+            else:
+                break_point = self.reverse_map[key]
 
-            new_pos = self.section_map[break_point.split(' ')[0]]
-            self.media_player.setPosition(new_pos)
-            self.media_player.pause()
-            self.play_pause_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        new_pos = self.section_map[break_point.split(' ')[0]]
+        self.media_player.setPosition(int(new_pos))
+        self.media_player.pause()
+        self.play_pause_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
 
     # def update_tree_item(self, position, item):
     #
@@ -105,7 +109,7 @@ class Window(QWidget):
         self.slider.setRange(0, duration)
 
     def set_position(self, position):
-        self.media_player.setPosition(position)
+        self.media_player.setPosition(int(position))
 
     def insert_into_object_map(self, timestamp, item):
         if timestamp not in self.object_map.keys():
